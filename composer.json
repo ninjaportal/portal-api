@@ -1,0 +1,45 @@
+{
+    "name": "ninjaportal/portal-api",
+    "description": "REST API package for NinjaPortal",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "spatie/laravel-package-tools": "^1.16",
+        "spatie/laravel-permission": "^6.0",
+        "php-open-source-saver/jwt-auth": "^2.8",
+        "illuminate/contracts": "^11.0||^12.0",
+        "illuminate/support": "^11.0||^12.0",
+        "ninjaportal/portal": "^1.0 || dev-main || dev-master"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.13",
+        "orchestra/testbench": "^9.0 || ^10.0",
+        "phpstan/phpstan": "^1.11 || ^2.0",
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "NinjaPortal\\Api\\Tests\\": "tests/"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "NinjaPortal\\Api\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NinjaPortal\\Api\\ApiServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse -c phpstan.neon.dist",
+        "format": "pint"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
