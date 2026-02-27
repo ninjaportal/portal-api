@@ -255,7 +255,13 @@ class PortalDomainActivitySubscriber
             ], $properties), static fn ($v) => $v !== null),
         ];
 
-        RecordActivityJob::dispatch($payload);
+        if ((bool) config('portal-api.activity.queue', false)) {
+            RecordActivityJob::dispatch($payload);
+
+            return;
+        }
+
+        RecordActivityJob::dispatchSync($payload);
     }
 
     /**
@@ -263,10 +269,14 @@ class PortalDomainActivitySubscriber
      */
     protected function resolveActor(): array
     {
-        $adminGuard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $adminGuard = (string) config('portal-api.auth.guards.admin', 'admin');
         $consumerGuard = (string) config('portal-api.auth.guards.consumer', 'api');
+        $request = request();
 
-        $user = Auth::user()
+        $user = $request?->user()
+            ?? $request?->user($adminGuard)
+            ?? $request?->user($consumerGuard)
+            ?? Auth::user()
             ?? Auth::guard($adminGuard)->user()
             ?? Auth::guard($consumerGuard)->user();
 
@@ -326,7 +336,7 @@ class PortalDomainActivitySubscriber
     protected function eventBaseName(object $event): string
     {
         $base = class_basename($event);
-        return str_ends_with($base, 'Event') ? substr($base, 0, -4) : $base;
+        return str_ends_with($base, 'Event') ? substr($base, 0, -5) : $base;
     }
 
     protected function crudActionFromEventBase(string $eventBase): ?string
@@ -365,15 +375,15 @@ class PortalDomainActivitySubscriber
         $snake = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $eventBase) ?? $eventBase);
 
         foreach ([
+            'product_added' => '_product_added',
+            'product_removed' => '_product_removed',
+            'product_approved' => '_product_approved',
+            'product_revoked' => '_product_revoked',
             'created' => '_created',
             'approved' => '_approved',
             'revoked' => '_revoked',
             'deleted' => '_deleted',
             'updated' => '_updated',
-            'product_added' => '_product_added',
-            'product_removed' => '_product_removed',
-            'product_approved' => '_product_approved',
-            'product_revoked' => '_product_revoked',
         ] as $action => $needle) {
             if (str_ends_with($snake, $needle)) {
                 return $action;

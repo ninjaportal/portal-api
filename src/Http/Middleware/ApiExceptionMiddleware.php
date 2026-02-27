@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
@@ -27,6 +28,8 @@ class ApiExceptionMiddleware
     {
         try {
             return $next($request);
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
         } catch (ValidationException $e) {
             return response()->errors('Validation failed.', $e->errors(), 422);
         } catch (AuthenticationException | UnauthorizedHttpException $e) {

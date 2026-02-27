@@ -25,7 +25,7 @@ class PermissionsController extends Controller
      */
     public function index(Request $request)
     {
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         $permissions = Permission::query()
             ->where('guard_name', $guard)
             ->orderBy('name')
@@ -64,7 +64,7 @@ class PermissionsController extends Controller
      */
     public function store(StorePermissionRequest $request)
     {
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         $data = $request->validated();
 
         $permission = Permission::create([
@@ -115,7 +115,7 @@ class PermissionsController extends Controller
 
     protected function resolveGuardedPermission(Permission $permission): Permission
     {
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         abort_if($permission->guard_name !== $guard, 404);
 
         return $permission;

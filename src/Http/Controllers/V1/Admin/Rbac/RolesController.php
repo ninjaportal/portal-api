@@ -27,7 +27,7 @@ class RolesController extends Controller
      */
     public function index(Request $request)
     {
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         $roles = Role::query()
             ->where('guard_name', $guard)
             ->with('permissions')
@@ -67,7 +67,7 @@ class RolesController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         $data = $request->validated();
 
         $permissionIds = $data['permission_ids'] ?? null;
@@ -142,7 +142,7 @@ class RolesController extends Controller
     public function syncPermissions(SyncRolePermissionsRequest $request, Role $role)
     {
         $role = $this->resolveGuardedRole($role);
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         $ids = Permission::query()
             ->where('guard_name', $guard)
             ->whereIn('id', $request->validated()['permission_ids'])
@@ -155,7 +155,7 @@ class RolesController extends Controller
 
     protected function resolveGuardedRole(Role $role): Role
     {
-        $guard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $guard = (string) config('portal-api.auth.guards.admin', 'admin');
         abort_if($role->guard_name !== $guard, 404);
 
         return $role;

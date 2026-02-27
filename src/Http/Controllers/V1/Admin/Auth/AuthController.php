@@ -20,6 +20,7 @@ class AuthController extends Controller
      * @bodyParam password string required The admin password. Example: secret
      *
      * @response 200 {"token_type":"Bearer","access_token":"<jwt>","expires_in":900,"refresh_token":"<token>"}
+     * @response 202 {"success":true,"status":202,"message":"MFA challenge required.","data":{"mfa_required":true,"challenge_type":"login","challenge_token":"<token>","driver":"email_otp","context":"admin","purpose":"login","expires_at":"2026-02-24T20:30:00Z","can_resend":true,"masked_destination":"a***n@example.com"},"meta":null}
      * @response 422 {"message":"Validation failed.","errors":{"email":["Invalid credentials."]}}
      */
     public function login(Request $request)

@@ -40,7 +40,7 @@ class PortalApiContext
         $context = strtolower(trim($context));
 
         return $context === 'admin'
-            ? (string) config('portal-api.auth.guards.admin', 'portal_api_admin')
+            ? (string) config('portal-api.auth.guards.admin', 'admin')
             : (string) config('portal-api.auth.guards.consumer', 'api');
     }
 

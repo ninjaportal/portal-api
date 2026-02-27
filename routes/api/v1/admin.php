@@ -25,7 +25,7 @@ Route::prefix(config('portal-api.admin_prefix', 'admin'))->group(function () {
     Route::post('/auth/login', [AdminAuthController::class, 'login'])->name('portal-api.admin.auth.login');
     Route::post('/auth/refresh', [AdminAuthController::class, 'refresh'])->name('portal-api.admin.auth.refresh');
 
-    $adminGuard = config('portal-api.auth.guards.admin', 'portal_api_admin');
+    $adminGuard = config('portal-api.auth.guards.admin', 'admin');
     $rbacEnabled = (bool) config('portal-api.rbac.enabled', true);
 
     Route::middleware("auth:{$adminGuard}")->group(function () use ($adminGuard, $rbacEnabled) {

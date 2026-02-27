@@ -21,7 +21,7 @@ abstract class TestCase extends OrchestraTestCase
         $app['config']->set('portal-api.auth.consumer_model', TestConsumer::class);
         $app['config']->set('portal-api.auth.admin_model', TestAdmin::class);
         $app['config']->set('portal-api.auth.guards.consumer', 'api');
-        $app['config']->set('portal-api.auth.guards.admin', 'portal_api_admin');
+        $app['config']->set('portal-api.auth.guards.admin', 'admin');
         $app['config']->set('portal-api.authorization.use_policies', false);
         $app['config']->set('portal-api.rbac.enabled', false);
     }

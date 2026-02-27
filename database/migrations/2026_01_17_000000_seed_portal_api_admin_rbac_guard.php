@@ -12,7 +12,7 @@ return new class extends Migration
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $adminGuard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $adminGuard = (string) config('portal-api.auth.guards.admin', 'admin');
         if (trim($adminGuard) === '') {
             return;
         }
@@ -78,4 +78,3 @@ return new class extends Migration
         }
     }
 };
-

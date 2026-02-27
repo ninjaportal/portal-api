@@ -8,6 +8,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Response;
 use NinjaPortal\Api\Auth\AuthFlow;
+use NinjaPortal\Api\Authorization\Console\Commands\ActivityHealthCheckCommand;
 use NinjaPortal\Api\Authorization\Console\Commands\PruneRefreshTokensCommand;
 use NinjaPortal\Api\Authorization\PolicyApiAuthorizer;
 use NinjaPortal\Api\Contracts\Auth\AuthFlowInterface;
@@ -25,6 +26,8 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class ApiServiceProvider extends PackageServiceProvider
 {
+    protected static bool $activitySubscriberRegistered = false;
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -35,7 +38,10 @@ class ApiServiceProvider extends PackageServiceProvider
                 '2026_01_16_000000_create_portal_api_activity_logs_table',
                 '2026_01_17_000000_seed_portal_api_admin_rbac_guard',
             ])
-            ->hasCommand(PruneRefreshTokensCommand::class)
+            ->hasCommands([
+                PruneRefreshTokensCommand::class,
+                ActivityHealthCheckCommand::class,
+            ])
             ->hasRoutes('api');
     }
 
@@ -59,7 +65,10 @@ class ApiServiceProvider extends PackageServiceProvider
         $router->aliasMiddleware('permission', \Spatie\Permission\Middleware\PermissionMiddleware::class);
         $router->aliasMiddleware('role_or_permission', \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class);
 
-        Event::subscribe(PortalDomainActivitySubscriber::class);
+        if (! self::$activitySubscriberRegistered) {
+            Event::subscribe(PortalDomainActivitySubscriber::class);
+            self::$activitySubscriberRegistered = true;
+        }
     }
 
     protected function registerCoreBindings(): void
@@ -113,7 +122,7 @@ class ApiServiceProvider extends PackageServiceProvider
 
         // Resolve guard names from config
         $consumerGuard = (string) config('portal-api.auth.guards.consumer', 'api');
-        $adminGuard = (string) config('portal-api.auth.guards.admin', 'portal_api_admin');
+        $adminGuard = (string) config('portal-api.auth.guards.admin', 'admin');
 
         config([
             // Consumer JWT guard/provider
