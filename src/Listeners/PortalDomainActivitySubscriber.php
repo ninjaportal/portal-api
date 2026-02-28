@@ -281,7 +281,7 @@ class PortalDomainActivitySubscriber
             ?? Auth::guard($consumerGuard)->user();
 
         if (! $user) {
-            return ['type' => null, 'id' => null, 'name' => null, 'email' => null];
+            return ['type' => 'system', 'id' => null, 'name' => 'System', 'email' => null];
         }
 
         $adminModel = (string) config('portal-api.auth.admin_model');

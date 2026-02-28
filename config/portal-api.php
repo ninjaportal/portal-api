@@ -32,7 +32,7 @@ return [
         'admin_model' => env('PORTAL_API_ADMIN_MODEL') ?: (config('ninjaportal.models.Admin') ?: (config('ninjaportal.models.User') ?: \App\Models\User::class)),
         'guards' => [
             'consumer' => env('PORTAL_API_CONSUMER_GUARD', 'api'),
-            'admin' => env('PORTAL_API_ADMIN_GUARD', 'admin'),
+            'admin' => env('PORTAL_API_ADMIN_GUARD', (string) config('ninjaportal.auth.guards.admin', 'admin')),
         ],
     ],
 
