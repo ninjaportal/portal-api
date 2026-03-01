@@ -22,7 +22,11 @@ return [
     ],
 
     /*
-     * Authentication models (defaults are resolved from the Portal config).
+     * Authentication models used for JWT auth.
+     * Defaults to the API-owned User and Admin models; override via environment
+     * variables or by publishing this config. At runtime these values are also
+     * promoted into `ninjaportal.models.*` so the rest of the package can
+     * resolve them through a single config key.
      *
      * - consumer: portal users/developers
      * - admin: dashboard/admin users
