@@ -2,6 +2,7 @@
 
 namespace NinjaPortal\Api\Tests\Feature;
 
+use NinjaPortal\Api\ApiServiceProvider;
 use NinjaPortal\Api\Models\ActivityLog;
 use NinjaPortal\Api\Listeners\PortalDomainActivitySubscriber;
 use NinjaPortal\Api\Support\PortalApiContext;
@@ -19,6 +20,32 @@ class PortalApiPackageTest extends TestCase
         $this->assertSame('portal_api_test_admins', $context->adminTable());
         $this->assertSame('api', $context->guardForContext('consumer'));
         $this->assertSame('admin', $context->guardForContext('admin'));
+    }
+
+    public function test_it_can_promote_portal_model_defaults_to_api_models(): void
+    {
+        config()->set('portal-api.auth.consumer_model', \NinjaPortal\Api\Models\User::class);
+        config()->set('portal-api.auth.admin_model', \NinjaPortal\Api\Models\Admin::class);
+        config()->set('ninjaportal.models.User', \NinjaPortal\Portal\Models\User::class);
+        config()->set('ninjaportal.models.Admin', \NinjaPortal\Portal\Models\Admin::class);
+
+        $this->invokePortalModelSync();
+
+        $this->assertSame(\NinjaPortal\Api\Models\User::class, config('ninjaportal.models.User'));
+        $this->assertSame(\NinjaPortal\Api\Models\Admin::class, config('ninjaportal.models.Admin'));
+    }
+
+    public function test_it_preserves_custom_portal_model_overrides(): void
+    {
+        config()->set('portal-api.auth.consumer_model', \NinjaPortal\Api\Models\User::class);
+        config()->set('portal-api.auth.admin_model', \NinjaPortal\Api\Models\Admin::class);
+        config()->set('ninjaportal.models.User', \NinjaPortal\Api\Tests\Fixtures\TestConsumer::class);
+        config()->set('ninjaportal.models.Admin', \NinjaPortal\Api\Tests\Fixtures\TestAdmin::class);
+
+        $this->invokePortalModelSync();
+
+        $this->assertSame(\NinjaPortal\Api\Tests\Fixtures\TestConsumer::class, config('ninjaportal.models.User'));
+        $this->assertSame(\NinjaPortal\Api\Tests\Fixtures\TestAdmin::class, config('ninjaportal.models.Admin'));
     }
 
     public function test_deleted_response_helper_defaults_to_http_200(): void
@@ -127,5 +154,14 @@ class PortalApiPackageTest extends TestCase
         }
 
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $matches[1]) ?? $matches[1]);
+    }
+
+    protected function invokePortalModelSync(): void
+    {
+        $provider = $this->app->getProvider(ApiServiceProvider::class);
+        $reflection = new \ReflectionClass($provider);
+        $method = $reflection->getMethod('syncPortalModelConfigWithApiDefaults');
+        $method->setAccessible(true);
+        $method->invoke($provider);
     }
 }

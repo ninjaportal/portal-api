@@ -25,6 +25,16 @@ Important keys:
 - `portal-api.tokens.*`
 - `portal-api.tokens.prune.*`
 
+Out of the box, `portal-api` ships JWT-ready auth models:
+- `NinjaPortal\Api\Models\User`
+- `NinjaPortal\Api\Models\Admin`
+
+When the shared `ninjaportal.models.User` / `ninjaportal.models.Admin` config values
+are still pointing at the core Portal models, `portal-api` promotes them to these API
+models automatically so the Portal repositories and API auth layer resolve the same
+classes. If your application already overrides those model config values, `portal-api`
+leaves them untouched.
+
 ## Extensibility (Client Customization)
 
 ### 1) Custom User/Admin Models
