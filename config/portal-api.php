@@ -22,14 +22,18 @@ return [
     ],
 
     /*
-     * Authentication models (defaults are resolved from the Portal config).
+     * Authentication models used for JWT auth.
+     * Defaults to the API-owned User and Admin models; override via environment
+     * variables or by publishing this config. At runtime these values are also
+     * promoted into `ninjaportal.models.*` so the rest of the package can
+     * resolve them through a single config key.
      *
      * - consumer: portal users/developers
      * - admin: dashboard/admin users
      */
     'auth' => [
-        'consumer_model' => env('PORTAL_API_CONSUMER_MODEL') ?: (config('ninjaportal.models.User') ?: \App\Models\User::class),
-        'admin_model' => env('PORTAL_API_ADMIN_MODEL') ?: (config('ninjaportal.models.Admin') ?: (config('ninjaportal.models.User') ?: \App\Models\User::class)),
+        'consumer_model' => env('PORTAL_API_CONSUMER_MODEL') ?: \NinjaPortal\Api\Models\User::class,
+        'admin_model' => env('PORTAL_API_ADMIN_MODEL') ?: \NinjaPortal\Api\Models\Admin::class,
         'guards' => [
             'consumer' => env('PORTAL_API_CONSUMER_GUARD', 'api'),
             'admin' => env('PORTAL_API_ADMIN_GUARD', (string) config('ninjaportal.auth.guards.admin', 'admin')),

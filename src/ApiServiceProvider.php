@@ -28,6 +28,16 @@ class ApiServiceProvider extends PackageServiceProvider
 {
     protected static bool $activitySubscriberRegistered = false;
 
+    protected const PORTAL_DEFAULT_MODELS = [
+        'User' => \NinjaPortal\Portal\Models\User::class,
+        'Admin' => \NinjaPortal\Portal\Models\Admin::class,
+    ];
+
+    protected const API_MODELS = [
+        'User' => \NinjaPortal\Api\Models\User::class,
+        'Admin' => \NinjaPortal\Api\Models\Admin::class,
+    ];
+
     public function configurePackage(Package $package): void
     {
         $package
@@ -51,6 +61,7 @@ class ApiServiceProvider extends PackageServiceProvider
             $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         }
 
+        $this->syncPortalModelConfigWithApiDefaults();
         $this->registerCoreBindings();
         $this->extendAuthConfig();
         $this->extendJwtConfig();
@@ -68,6 +79,20 @@ class ApiServiceProvider extends PackageServiceProvider
         if (! self::$activitySubscriberRegistered) {
             Event::subscribe(PortalDomainActivitySubscriber::class);
             self::$activitySubscriberRegistered = true;
+        }
+    }
+
+    protected function syncPortalModelConfigWithApiDefaults(): void
+    {
+        foreach (self::PORTAL_DEFAULT_MODELS as $key => $portalModel) {
+            $portalConfigKey = "ninjaportal.models.{$key}";
+            $currentPortalModel = config($portalConfigKey, $portalModel);
+            $authConfigKey = $key === 'User' ? 'portal-api.auth.consumer_model' : 'portal-api.auth.admin_model';
+            $desiredModel = (string) config($authConfigKey, self::API_MODELS[$key]);
+
+            if ($currentPortalModel === $portalModel) {
+                config([$portalConfigKey => $desiredModel !== '' ? $desiredModel : self::API_MODELS[$key]]);
+            }
         }
     }
 
